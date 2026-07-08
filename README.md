@@ -1,4 +1,4 @@
-# nix-jump-desktop
+# nix-jump-desktop-viewer
 
 Unofficial [Nix](https://nixos.org) flake for **Jump Desktop** (the macOS remote-desktop *viewer/client*), repackaged from its official upstream release and kept current automatically.
 
@@ -10,30 +10,30 @@ This packages the **viewer** — the app you use to connect *out* to remote mach
 ## Quick start
 
 ```sh
-nix run github:jakehemmerle/nix-jump-desktop            # open the app
-nix profile install github:jakehemmerle/nix-jump-desktop
+nix run github:jakehemmerle/nix-jump-desktop-viewer            # open the app
+nix profile install github:jakehemmerle/nix-jump-desktop-viewer
 ```
 
 `nix profile install` puts the `.app` in an un-indexed location; for a Spotlight-launchable GUI use `nix run` or the Home Manager / nix-darwin integration below.
 
 ## Use it in your config
 
-The `inputs.nix-jump-desktop` line belongs in your **flake's** `inputs`; the rest goes in a module that receives your flake `inputs`.
+The `inputs.nix-jump-desktop-viewer` line belongs in your **flake's** `inputs`; the rest goes in a module that receives your flake `inputs`.
 
 ```nix
 # flake.nix
-inputs.nix-jump-desktop.url = "github:jakehemmerle/nix-jump-desktop";
+inputs.nix-jump-desktop-viewer.url = "github:jakehemmerle/nix-jump-desktop-viewer";
 
 # Home Manager module (Jake's setup):
 { inputs, pkgs, ... }:
 {
-  home.packages = [ inputs.nix-jump-desktop.packages.${pkgs.system}.jump-desktop ];
+  home.packages = [ inputs.nix-jump-desktop-viewer.packages.${pkgs.system}.jump-desktop ];
 }
 ```
 
 Home Manager links the `.app` into `~/Applications/Home Manager Apps` (Spotlight-discoverable). nix-darwin: use `environment.systemPackages` instead.
 
-Overlay for `pkgs.jump-desktop` everywhere: `nixpkgs.overlays = [ inputs.nix-jump-desktop.overlays.default ];`
+Overlay for `pkgs.jump-desktop` everywhere: `nixpkgs.overlays = [ inputs.nix-jump-desktop-viewer.overlays.default ];`
 
 ## Gatekeeper
 
