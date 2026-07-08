@@ -1,0 +1,20 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: macos-14 # Apple Silicon macOS
+    steps:
+      - uses: actions/checkout@v5
+      - uses: DeterminateSystems/nix-installer-action@v22
+      - name: flake check
+        run: nix flake check --print-build-logs
+      - name: build package
+        run: nix build --print-build-logs .#jump-desktop
+      - name: verify authenticity
+        run: ./scripts/verify-signature.sh result
