@@ -4,7 +4,7 @@ name: update
 # authentic), then commit the bump straight to main.
 on:
   schedule:
-    - cron: "0 */6 * * *" # every 6 hours
+    - cron: "43 7 * * *" # daily; upstream ships ~quarterly
   workflow_dispatch: {}
 
 concurrency:
@@ -53,3 +53,23 @@ jobs:
           done
           echo "ERROR: could not push bump after 3 attempts" >&2
           exit 1
+
+      # GitHub disables cron schedules in public repos after 60 days with no
+      # repo activity. A quiet upstream produces no bump commits, which would
+      # silently switch off this very updater right before the release it
+      # exists to catch. A bot push resets that clock, so heartbeat when the
+      # last commit is getting old. Also reachable via workflow_dispatch, which
+      # makes "Run workflow" a manual reset button.
+      - name: Keep-alive (prevent 60-day schedule disable)
+        if: steps.sync.outputs.changed == 'false'
+        run: |
+          age=$(( ( $(date +%s) - $(git log -1 --format=%ct) ) / 86400 ))
+          if [ "$age" -lt 45 ]; then
+            echo "last commit ${age}d old — no keep-alive needed"
+            exit 0
+          fi
+          version="$(jq -r .version pkgs/jump-desktop/source.json)"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: keep-alive — upstream still at ${version}"
+          git push
